@@ -64,7 +64,7 @@ class AsyncManager:
         
         Example:
             >>> manager = AsyncManager()
-            >>> with manager.managed_limiter("docker", 10):
+            >>> with manager.create_limiter("docker", 10):
             >>>     # limiter 在這裡可用
             >>>     pass
         """
@@ -97,18 +97,18 @@ class AsyncManager:
         
         Examples:
             >>> # 方式一：無參數（最簡單）
-            >>> @asynchronization
+            >>> @to_async
             >>> def sync_func():
             >>>     pass
             
             >>> # 方式二：傳遞 CapacityLimiter 物件（簡單場景）
             >>> limiter = CapacityLimiter(5)
-            >>> @asynchronization(limiter=limiter)
+            >>> @to_async(limiter=limiter)
             >>> def sync_func():
             >>>     pass
             
             >>> # 方式三：使用 limiter name（已有 limiter 環境，建議另外管理 name limiter，要提前註冊）
-            >>> @asynchronization(limiter="docker")
+            >>> @to_async(limiter="docker")
             >>> def sync_func():
             >>>     pass
         """
