@@ -1,6 +1,12 @@
 <div align="center">
   <h1 style="margin-top: 10px;">Async Manager</h1>
 
+  <p>
+    <a href="https://pypi.org/project/async-manager/">
+      <img src="https://img.shields.io/pypi/v/async-manager?style=flat-square" alt="PyPI Badge">
+    </a>
+  </p>
+
   <h2>讓同步函式在非同步環境中優雅運行的最佳助手</h2>
 
   <p>
