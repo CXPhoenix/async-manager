@@ -35,12 +35,12 @@
 
 ## 安裝指南 📦
 
-使用 `pip` 或 `uv` 安裝：
+使用 `pip` 或 `uv` 直接從 GitHub 安裝：
 
 ```bash
-uv add async-manager
+uv add "async-manager @ git+https://github.com/CXPhoenix/async-manager.git"
 # 或
-pip install async-manager
+pip install "git+https://github.com/CXPhoenix/async-manager.git"
 ```
 
 ## 快速開始 ⚡
