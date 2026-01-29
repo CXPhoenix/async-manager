@@ -4,22 +4,63 @@ from functools import partial, wraps
 from contextlib import contextmanager
 
 class AsyncManager:
+    """
+    非同步管理器 (Async Manager) 用於管理並發限制 (Concurrency Limits) 與同步函式轉換。
+    
+    這個類別維護了一組命名的 `CapacityLimiter`，並提供裝飾器將同步函式轉換為
+    在 Thread Pool 中運行的非同步函式 (Awaitable)。
+    """
     def __init__(self):
+        """
+        初始化 AsyncManager。
+        建立一個空的 limiter 儲存庫。
+        """
         self._limiter: dict[str, anyio.CapacityLimiter] = {}
     
     def regist_limiter(self, name: str, limiter: anyio.CapacityLimiter):
+        """
+        註冊一個命名的 CapacityLimiter。
+
+        Args:
+            name: Limiter 的名稱 (ID)。
+            limiter: anyio.CapacityLimiter 實例。
+        """
         self._limiter[name] = limiter
     
     def unregist_limiter(self, name: str):
+        """
+        取消註冊 (移除) 指定名稱的 CapacityLimiter。
+
+        Args:
+            name: 要移除的 Limiter 名稱。
+        """
         self._limiter.pop(name, None)
     
     def get_limiter(self, name: str) -> anyio.CapacityLimiter | None:
+        """
+        取得指定名稱的 CapacityLimiter。
+
+        Args:
+            name: Limiter 名稱。
+
+        Returns:
+            CapacityLimiter | None: 如果找到則回傳實例，否則回傳 None。
+        """
         return self._limiter.get(name, None)
     
     @contextmanager
     def create_limiter(self, name: str, max_worker: int):
         """
-        Context manager 用於自動管理 limiter 生命週期
+        建立並管理一個 Limiter 生命週期的 Context Manager。
+        
+        當進入 context 時註冊 limiter，離開時自動取消註冊。
+        
+        Args:
+            name: Limiter 名稱。
+            max_worker: 最大並發工作數。
+        
+        Yields:
+             anyio.CapacityLimiter: 建立的 limiter 實例。
         
         Example:
             >>> manager = AsyncManager()
