@@ -1,155 +1,94 @@
-# Async Manager
+<div align="center">
+  <h1 style="margin-top: 10px;">Async Manager</h1>
 
-`async_manager` 是一個用於管理非同步執行與並發限制的 Python 工具庫。它基於 `anyio` 構建，提供了將同步函式轉換為非同步函式的裝飾器，並支持精細的並發控制（Capacity Limiting）。
+  <h2>讓同步函式在非同步環境中優雅運行的最佳助手</h2>
 
-## 特性
+  <p>
+    <a href="#features">功能特色</a>
+    ◆ <a href="#quick-start">快速開始</a>
+    ◆ <a href="#installation">安裝指南</a>
+    ◆ <a href="docs/api.md">API 文件</a>
+  </p>
+</div>
 
-- **同步轉非同步**：輕鬆將阻塞的同步函式轉換為非同步 awaitable 函式。
-- **並發限制 (Concurrency Limiting)**：使用 `anyio.CapacityLimiter` 防止過多執行緒同時運行。
-- **靈活的 Limiter 管理**：支持直接傳遞 Limiter 物件或使用名稱註冊/查找 Limiter。
-- **Context Manager 支持**：自動管理 Limiter 的生命週期。
+## 簡介 🎯
 
-## 安裝
+**Async Manager** 是一個專為 Python 非同步應用程式（如 FastAPI）設計的輕量級套件。它封裝了 `anyio` 的底層細節，提供簡單易用的裝飾器 (Decorator)，讓你能夠輕鬆地將同步函式 (Synchronous Functions) 整合進非同步 (Asynchronous) 流程中，而不會阻塞 Event Loop。
 
-此模組為專案內部庫，請確保已安裝依賴：
+特別適用於：
+- 在 `FastAPI` 中執行耗時的 CPU 密集型運算。
+- 在 `AnyIO` 環境中呼叫傳統的同步 IO 函式庫（如 `requests`, `pandas`, `SQLAlchemy` Core）。
+- 需要精細控制執行緒池 (Thread Pool) 並發數量 (Capacity Limiter) 的場景。
+
+## 功能特色 ✨
+
+- **🚀 簡單易用**：只要加上 `@to_async` 裝飾器，立刻讓同步函式變成 Awaitable。
+- **🛡️ 資源控管**：支援 `CapacityLimiter`，防止過多並發耗盡系統資源。
+- **📦 生命週期管理**：提供 Context Manager (`create_limiter`) 自動註冊與清理 Limiter，避免記憶體洩漏。
+- **🔧 靈活整合**：可直接使用名稱字串 (String) 參照 Limiter，方便與依賴注入 (Dependency Injection) 系統整合。
+
+## 安裝指南 📦
+
+使用 `pip` 或 `uv` 安裝：
 
 ```bash
-pip install anyio
+uv add async-manager
+# 或
+pip install async-manager
 ```
 
-## 核心組件
+## 快速開始 ⚡
 
-### `AsyncManager` 類別
+### 基礎範例
 
-核心管理類別，負責 Limiter 的註冊與查找，以及提供裝飾器。
-
-```python
-from async_manager import AsyncManager
-
-manager = AsyncManager()
-```
-
-### 全域便捷函式
-
-為了方便使用，`async_manager` 模組導出了一個預設的 `AsyncManager` 實例的方法：
-
-- `to_async`
-- `regist_limiter`
-- `unregist_limiter`
-- `create_limiter`
-
-你可以直接從 `async_manager` 導入使用。
-
-```python
-from async_manager import to_async, regist_limiter
-```
-
-## 使用指南
-
-### 1. 基本用法：轉換同步函式
-
-最簡單的用法是不帶參數直接使用 `@to_async`。這會將函式放入預設的執行緒池中執行。
+最簡單的用法，直接將同步函式轉為非同步：
 
 ```python
 import time
 import asyncio
 from async_manager import to_async
 
+# 原始的同步函式 (會阻塞)
 @to_async
-def heavy_computation(x):
-    time.sleep(1) # 模擬阻塞操作
-    return x * x
+def slow_task(duration: float):
+    print(f"Starting task for {duration}s")
+    time.sleep(duration)
+    return "Done"
 
 async def main():
-    result = await heavy_computation(10)
-    print(result)
+    # 現在它是 awaitable 的了！且在獨立 Thread 中執行
+    await slow_task(1.0)
 
 if __name__ == "__main__":
     asyncio.run(main())
 ```
 
-### 2. 並發限制 (Limiter)
+### 使用 Capacity Limiter
 
-你可以限制特定函式的同時執行數量。
-
-#### 方法 A：直接傳遞 `CapacityLimiter` 物件 (推薦用於簡單腳本)
-
-```python
-from anyio import CapacityLimiter
-from async_manager import to_async
-
-# 限制同時只能有 2 個執行緒執行此函式
-limiter = CapacityLimiter(2)
-
-@to_async(limiter=limiter)
-def limited_task(n):
-    # ...
-    pass
-```
-
-#### 方法 B：使用 Limiter 名稱 (推薦用於大型應用/FastAPI)
-
-在大型應用中，定義與使用通常是分離的。你可以先註冊一個 Limiter，然後在裝飾器中引用其名稱。
-
-```python
-from async_manager import AsyncManager, to_async
-from anyio import CapacityLimiter
-
-manager = AsyncManager()
-
-# 1. 註冊 Limiter
-manager.regist_limiter("db_pool", CapacityLimiter(5))
-
-# 2. 使用名稱引用
-@manager.to_async(limiter="db_pool")
-def db_operation():
-    # 最多同時 5 個併發
-    pass
-```
-
-> **注意**：如果使用名稱引用，該名稱必須在呼叫函式之前被註冊，否則執行時會拋出 `RuntimeError`。
-
-### 3. 動態 Limiter 管理
-
-使用 `create_limiter` context manager 可以自動註冊與註銷 Limiter，適合臨時性的並發控制。
+限制同時執行的任務數量，保護你的資源：
 
 ```python
 from async_manager import AsyncManager
 
 manager = AsyncManager()
 
-# 在這個區塊內，"temp_pool" limiter 是有效的
-with manager.create_limiter("temp_pool", max_worker=3):
+# 使用 Context Manager 建立一個名為 "db_pool" 的 limiter，限制最大 5 個並發
+with manager.create_limiter("db_pool", max_worker=5):
     
-    @manager.to_async(limiter="temp_pool")
-    def job():
+    # 指定使用這個 limiter
+    @manager.to_async(limiter="db_pool")
+    def heavy_db_query():
+        # ... database operations ...
         pass
-        
-    # 執行任務...
-    
-# 離開區塊後，"temp_pool" 會被自動移除
+
+    # 在這個區塊內呼叫 heavy_db_query 都會受到並發限制
 ```
 
-## API 參考
+## 文件索引 📚
 
-### `AsyncManager` 方法
+- **[API 參考文件](docs/api.md)**：詳細的類別與函式說明。
+- **[使用指南](docs/usage.md)**：進階範例、FastAPI 整合教學與最佳實踐。
 
-- **`regist_limiter(name: str, limiter: anyio.CapacityLimiter)`**
-  註冊一個命名 limiter。
+## 授權 📄
 
-- **`unregist_limiter(name: str)`**
-  移除一個命名 limiter。
-
-- **`get_limiter(name: str) -> anyio.CapacityLimiter | None`**
-  獲取指定名稱的 limiter。
-
-- **`create_limiter(name: str, max_worker: int)`**
-  Context manager，用於創建並自動管理 limiter 生命週期。
-
-- **`to_async(func=None, *, limiter=None)`**
-  裝飾器。
-    - `func`: 目標同步函式。
-    - `limiter`: 
-        - `None`: 使用預設機制。
-        - `capacityLimiter`: 直接使用此實例。
-        - `str`: 使用已註冊的 limiter 名稱。
+本專案採用 **Educational Community License v2.0 (ECL-2.0)** 授權 - 詳情請參閱 [LICENSE](LICENSE) 檔案。
