@@ -2,9 +2,14 @@
   <h1 style="margin-top: 10px;">Async Manager</h1>
 
   <p>
-    <a href="https://pypi.org/project/async-manager/">
-      <img src="https://img.shields.io/pypi/v/async-manager?style=flat-square" alt="PyPI Badge">
+    <a href="https://github.com/CXPhoenix/async-manager/releases">
+      <img src="https://img.shields.io/github/v/release/CXPhoenix/async-manager?style=flat-square&label=Release" alt="GitHub Release">
     </a>
+    <a href="https://github.com/CXPhoenix/async-manager/blob/main/LICENSE">
+      <img src="https://img.shields.io/github/license/CXPhoenix/async-manager?style=flat-square" alt="License">
+    </a>
+    <img src="https://img.shields.io/badge/python-3.13+-3776AB?style=flat-square&logo=python&logoColor=white" alt="Python Version">
+    <img src="https://img.shields.io/github/repo-size/CXPhoenix/async-manager?style=flat-square" alt="Repo Size">
   </p>
 
   <h2>讓同步函式在非同步環境中優雅運行的最佳助手</h2>
