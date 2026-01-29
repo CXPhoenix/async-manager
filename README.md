@@ -19,6 +19,7 @@
     ◆ <a href="#quick-start">快速開始</a>
     ◆ <a href="#installation">安裝指南</a>
     ◆ <a href="docs/api.md">API 文件</a>
+    ◆ <a href="CHANGELOG.md">更新日誌</a>
   </p>
 </div>
 
@@ -99,6 +100,7 @@ with manager.create_limiter("db_pool", max_worker=5):
 
 - **[API 參考文件](docs/api.md)**：詳細的類別與函式說明。
 - **[使用指南](docs/usage.md)**：進階範例、FastAPI 整合教學與最佳實踐。
+- **[更新日誌](CHANGELOG.md)**：查看版本變更記錄。
 
 ## 授權 📄
 
