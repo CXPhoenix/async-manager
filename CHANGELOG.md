@@ -5,6 +5,12 @@
 格式基於 [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)，
 並遵守 [Semantic Versioning](https://semver.org/spec/v2.0.0.html) 規範。
 
+## [0.1.1] - 2026-01-29
+
+### 修正
+- 修正 Docstring 範例中的函式名稱錯誤 (`asynchronization` -> `to_async`, `managed_limiter` -> `create_limiter`)。
+- 為 `async_manager` 模組及其子模組補充完整的繁體中文 Docstrings。
+
 ## [0.1.0] - 2026-01-29
 
 ### 新增

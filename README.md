@@ -44,9 +44,9 @@
 使用 `pip` 或 `uv` 直接從 GitHub 安裝：
 
 ```bash
-uv add "async-manager @ git+https://github.com/CXPhoenix/async-manager.git"
+uv add "async-manager @ git+https://github.com/CXPhoenix/async-manager.git@v0.1.1"
 # 或
-pip install "git+https://github.com/CXPhoenix/async-manager.git"
+pip install "git+https://github.com/CXPhoenix/async-manager.git@v0.1.1"
 ```
 
 ## 快速開始 ⚡
